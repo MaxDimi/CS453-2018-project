@@ -78,9 +78,9 @@ You may read and inspire from existing STM libraries, but it must be **your own 
 
 1. Zip your modified copy of the `template` directory.
 
-2. Send your code for evaluation with the `submit.py` script.
+2. Send your code for evaluation with the `submit.py` script. You can specify for which step your submission is.
 ```
-usage: submit.py [-h] --uuid UUID [--host HOST] [--port PORT] zippath
+usage: submit.py [-h] --uuid UUID [--host HOST] [--port PORT] [--step STEP] zippath
 
 positional arguments:
   zippath      Path to a zip file containing your library code
@@ -88,8 +88,9 @@ positional arguments:
 optional arguments:
   -h, --help   show this help message and exit
   --uuid UUID  Secret user unique identifier
-  --host HOST  Server hostname or IPv4
+  --host HOST  Server hostname
   --port PORT  Server TCP port
+  --step STEP  Which step of the project your submission fulfills
 ```
 
 You can submit code as often as you want until the deadline.
@@ -141,7 +142,7 @@ A **shared memory region** is a non-empty set of shared memory segments.
 Shared memory region creation and destruction are respectively managed by `tm_create` and `tm_destroy`.
 The content of the shared memory region is *only* accessed from inside a transaction, and *solely* by the use of the functions mentioned below.
 
-A **transaction** consists of a sequence of `tm_read`, `tm_write`, `tm_alloc`, `tm_free` operations in a shared memory region, enclosed between a call to `tm_begin` and a call to `tm_end` (as well as any number of non-transactional operations).
+A **transaction** consists of a sequence of `tm_read`, `tm_write`, `tm_alloc`, `tm_free` operations in a shared memory region, enclosed between a call to `tm_begin` and a call to `tm_end` (as well as any number of non-transactional operations in private memory).
 A transaction is executed on one and only one shared memory region.
 A transaction either *commits* its speculative updates to the shared memory region when `tm_end` is reached, or *aborts* its execution (discarding its speculative updates) at any time (see the reference).
 When a transaction is aborted, the *user* (i.e. the `grading` tool for this project) is responsible for retrying the *same* transaction (i.e. *going back* to the same `tm_begin` call site).
@@ -352,8 +353,6 @@ Memory allocation in the given transaction.
 **Return:** One of: `success_alloc` (allocation was successful and transaction can continue), `abort_alloc` (transaction was aborted) and `nomem_alloc` (memory allocation failed)
 
 > **NB:** this function can be called concurrently, concurrent calls must be made with at least a different `shared` parameter or a different `tx` parameter.
-
-> **NB:** the size must be a positive multiple of the shared memory region's alignment.
 
 > **NB:** the pointer `target` can only be dereferenced for the duration of the call.
 
